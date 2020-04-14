@@ -1,0 +1,13 @@
+---
+title: "Establishment Updates"
+output: blastula::blastula_email
+---
+
+Hi There,
+
+There have been changes to the `All Establishments` dataset from [Get Information about Schools](https://get-information-schools.service.gov.uk/Downloads). The changes can be seen below. 
+
+```{r comparison-table, echo=FALSE, message=FALSE, warning=FALSE}
+```
+
+

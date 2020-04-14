@@ -1,0 +1,71 @@
+---
+title: "Establishment Changes - Checks"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(blastula)
+library(compareDF)
+```
+
+
+Read in data
+
+```{r}
+today_estabs <- read_rds("data/estabs-2020-04-14.rds")
+yesterday_estabs <- read_rds("data/estabs-2020-04-13.rds")
+```
+
+Check if there are any differences
+
+```{r}
+equal <- all_equal(today_estabs, yesterday_estabs)
+```
+
+define function to view changes as the default in `compareDF` isn't suitable.
+
+```{r view-changes}
+view_changes <- function(changes, ...) {
+  
+  changed_cols <- select_if(changes$comparison_table_diff,
+                            function(x) any(x %in% c("+", "-"))) %>%
+    names()
+  
+  changed_cols <- c(changes$group_col, changed_cols)
+  
+  changes[[1]] <-  select(changes[[1]],  changed_cols)
+  changes[[2]] <- select(changes[[2]],  changed_cols)
+  changes[[6]] <- select(changes[[6]],  changed_cols)
+  changes[[7]] <- select(changes[[7]],  changed_cols)
+  
+  temp_dir = tempdir()
+  temp_file <- paste0(temp_dir, "/temp.html")
+  cat(create_output_table(changes), file = temp_file, ...)
+  ret <- htmltools::includeHTML(temp_file)
+  unlink("temp.html") 
+  
+  ret
+}
+```
+
+If changes view them
+
+```{r comparison-table, message=FALSE, warning=FALSE}
+if (!isTRUE(equal)) {
+  changes <- compare_df(today_estabs, yesterday_estabs, "urn")
+  view_changes(changes)
+} else {
+  blastula::suppress_scheduled_email()
+}
+
+```
+
+```{r connect_email, echo=FALSE}
+render_connect_email(input = "establishment-changes-email.Rmd") %>%
+  attach_connect_email(
+    subject = "Establishment Changes",
+  )
+```
+
