@@ -5,11 +5,26 @@ today_fp <- "https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/pub
 
 # manually adjusting the date on the csv file to pull something from 2019-01-01
 # this will be a time period where we can expect to see differences
-yesterday_fp <- "https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata20190101.csv"
+yesterday_fp <- "https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata20180101.csv"
 
 # read the csv
 estabs <- read_csv(today_fp) %>% 
   janitor::clean_names()
+
+
+# programatically assignD by date
+# will pin this to have one pin per day. This is bad, but only to test this out
+# over the next day 
+# _hopefully_ tomorrow there is a change
+estab_obj_date <- glue::glue("estabs_{format(Sys.Date(), '%y%m%d')}")
+
+
+# register pin board
+pins::board_register_local()
+
+# pin today's data
+# get is a way to grab an object by string name from environment
+pins::pin(estabs, estab_obj_date)
 
 # fetch specs from read_csv
 estab_specs <- spec(estabs)
